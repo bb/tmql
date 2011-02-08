@@ -83,8 +83,8 @@
 							org.osgi.framework,
 							org.slf4j;version="1.6.1"
  							</Import-Package>
-						<Bundle-SymbolicName>de.topicmapslab.tmql4j.delete</Bundle-SymbolicName>
-						<Bundle-Name>TMQL Delete Style</Bundle-Name>
+						<Bundle-SymbolicName>de.topicmapslab.tmql4j.flwr</Bundle-SymbolicName>
+						<Bundle-Name>TMQL FLWR Style</Bundle-Name>
 						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
 						<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
 						<Service-Component>OSGI-INF/tmql4j-flwr.xml</Service-Component>
