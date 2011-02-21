@@ -34,4 +34,6 @@ public class with_TMQL_runtime_on_ToyTM extends with_TopicMap {
 		IQuery queryResult = runtime.run(toytm, query);
 		return queryResult.getResults();
 	}
+	
+	
 }

@@ -174,31 +174,32 @@ public final class CollectionsUtility {
 		 */
 		if (sequence.isEmpty()) {
 			return sequence;
-		} else {
-			/*
-			 * create new sequence
-			 */
-			List<E> seq = HashUtil.getList();
-
-			/*
-			 * iterate over elements
-			 */
-			for (E obj : sequence) {
-				/*
-				 * if item is tuple sequence call atomify() against
-				 */
-				if (obj instanceof List<?>) {
-					seq.addAll(atomify(runtime, (List<E>) obj));
-				}
-				/*
-				 * if item is atomic value
-				 */
-				else {
-					seq.add(obj);
-				}
-			}
-			return seq;
 		}
+		
+		/*
+		 * create new sequence
+		 */
+		List<E> seq = HashUtil.getList();
+
+		/*
+		 * iterate over elements
+		 */
+		for (E obj : sequence) {
+			/*
+			 * if item is tuple sequence call atomify() against
+			 */
+			if (obj instanceof List<?>) {
+				seq.addAll((Collection<? extends E>) atomify(runtime, (List<E>) obj));
+			}
+			/*
+			 * if item is atomic value
+			 */
+			else {
+				seq.add(obj);
+			}
+		}
+		return seq;
+		
 	}
 
 	/**
