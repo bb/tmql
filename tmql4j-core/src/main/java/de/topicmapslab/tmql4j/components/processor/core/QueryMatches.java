@@ -508,6 +508,7 @@ public class QueryMatches implements Iterable<Map<String, Object>> {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Iterator<Map<String, Object>> iterator() {
 		return matches.iterator();
 	}
@@ -1157,6 +1158,7 @@ public class QueryMatches implements Iterable<Map<String, Object>> {
 		QueryMatches matches = new QueryMatches(runtime, this);
 
 		Collections.sort(matches.matches, new Comparator<Map<String, Object>>() {
+			@Override
 			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
 
 				Object v1 = o1.get(variable);
@@ -1188,6 +1190,7 @@ public class QueryMatches implements Iterable<Map<String, Object>> {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String toString() {
 		return matches.toString();
 	}
@@ -1408,9 +1411,7 @@ public class QueryMatches implements Iterable<Map<String, Object>> {
 						/*
 						 * add value if not already contained
 						 */
-						if (!values.contains(value)) {
-							values.add(value);
-						}
+						values.add(value);
 					}
 
 				}

@@ -203,5 +203,5 @@ public class TestBestLabel extends Tmql4JTestCase {
 		name1.addTheme(newTheme);
 		name2.addTheme(newTheme);
 		assertEquals("Best label should be the name with the scope with the smallest number of themes and shortest value", name2.getValue(), getBestLabel(topic, newTheme));
-	}
+	}	
 }

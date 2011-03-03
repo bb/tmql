@@ -34,6 +34,7 @@ import de.topicmapslab.tmql4j.majortom.grammar.functions.GetTopicsByNameRegExp;
 import de.topicmapslab.tmql4j.majortom.grammar.functions.GetTopicsByNameValue;
 import de.topicmapslab.tmql4j.majortom.grammar.functions.GetTopicsByOccurrenceRegExp;
 import de.topicmapslab.tmql4j.majortom.grammar.functions.GetTopicsByOccurrenceValue;
+import de.topicmapslab.tmql4j.majortom.grammar.functions.RemoveDuplicates;
 import de.topicmapslab.tmql4j.majortom.grammar.literals.AxisRatomify;
 import de.topicmapslab.tmql4j.path.components.navigation.NavigationRegistry;
 import de.topicmapslab.tmql4j.path.exception.NavigationException;
@@ -98,6 +99,8 @@ public class MajortomFunctions implements ILanguageExtension {
 		runtime.getLanguageContext().getFunctionRegistry().registerFunction(GetTopicsByNameRegExp.GetTopicsByNameRegExp, GetTopicsByNameRegExp.class);
 		runtime.getLanguageContext().getFunctionRegistry().registerFunction(GetTopicsByOccurrenceValue.GetTopicsByOccurrenceValue, GetTopicsByOccurrenceValue.class);
 		runtime.getLanguageContext().getFunctionRegistry().registerFunction(GetTopicsByOccurrenceRegExp.GetTopicsByOccurrenceRegExp, GetTopicsByOccurrenceRegExp.class);
+		
+		runtime.getLanguageContext().getFunctionRegistry().registerFunction(RemoveDuplicates.RemoveDuplicates, RemoveDuplicates.class);
 		/*
 		 * register axes
 		 */
