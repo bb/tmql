@@ -21,6 +21,7 @@ import de.topicmapslab.tmql4j.components.processor.results.jtmqr.reader.result.S
 import de.topicmapslab.tmql4j.components.processor.results.jtmqr.writer.v1.IJtmQrKeys;
 import de.topicmapslab.tmql4j.components.processor.results.model.IResult;
 import de.topicmapslab.tmql4j.components.processor.results.model.IResultSet;
+import de.topicmapslab.tmql4j.exception.TMQLRuntimeException;
 
 /**
  * class which reads a JTMQR result into a TMQL result set
@@ -30,8 +31,10 @@ import de.topicmapslab.tmql4j.components.processor.results.model.IResultSet;
  */
 public class JTMQRReader {
 
-	private final JsonParser jParser;
-
+	private JsonParser jParser;
+	private final InputStream inStream;
+	
+	
 	/**
 	 * constructor
 	 * 
@@ -40,9 +43,8 @@ public class JTMQRReader {
 	 * @throws JsonParseException
 	 * @throws IOException
 	 */
-	public JTMQRReader(InputStream in) throws JsonParseException, IOException {
-		JsonFactory jFactory = new JsonFactory();
-		this.jParser = jFactory.createJsonParser(in);
+	public JTMQRReader(InputStream in){
+		this.inStream = in;
 	}
 
 	/**
@@ -51,34 +53,47 @@ public class JTMQRReader {
 	 * @throws JsonParseException
 	 * @throws IOException
 	 */
-	public IResultSet<IResult> readResultSet() throws JsonParseException, IOException {
+	public IResultSet<IResult> readResultSet() {
 
-		SimpleJtmqrResultSet resultSet = new SimpleJtmqrResultSet();
-		IResult result = null;
-
-		JsonToken lastToken = null;
-		while (this.jParser.nextToken() != null) {
-
-			JsonToken token = this.jParser.getCurrentToken();
-			String text = this.jParser.getText();
-
-			/*
-			 * is name field
-			 */
-			if (token.equals(JsonToken.FIELD_NAME)) {
-				result = handleField(resultSet, result, text);
+		SimpleJtmqrResultSet resultSet = null;
+		
+		try{
+		
+			JsonFactory jFactory = new JsonFactory();
+			this.jParser = jFactory.createJsonParser(this.inStream);
+			
+			resultSet = new SimpleJtmqrResultSet();
+			IResult result = null;
+			
+			JsonToken lastToken = null;
+			while (this.jParser.nextToken() != null) {
+	
+				JsonToken token = this.jParser.getCurrentToken();
+				String text = this.jParser.getText();
+				
+				//System.out.println(token + " --> " + text);
+	
+				/*
+				 * is name field
+				 */
+				if (token.equals(JsonToken.FIELD_NAME)) {
+					result = handleField(resultSet, result, text);
+				}
+				/*
+				 * check if is a null item '{}' in tuple mode
+				 */
+				else if (result != null && JsonToken.START_OBJECT.equals(lastToken) && token.equals(JsonToken.END_OBJECT)) {
+					handleNullField(resultSet, result);
+				}
+				lastToken = token;
 			}
-			/*
-			 * check if is a null item '{}' in tuple mode
-			 */
-			else if (result != null && JsonToken.START_OBJECT.equals(lastToken) && token.equals(JsonToken.END_OBJECT)) {
-				handleNullField(resultSet, result);
+	
+			if (result != null) {
+				resultSet.addResult(result);
 			}
-			lastToken = token;
-		}
-
-		if (result != null) {
-			resultSet.addResult(result);
+		
+		}catch (Exception e) {
+			throw new TMQLRuntimeException("Parse JTMQR failed.", e);
 		}
 
 		return resultSet;

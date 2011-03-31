@@ -18,6 +18,8 @@ import java.util.Set;
 
 import org.tmapi.core.TopicMap;
 
+import de.topicmapslab.tmql4j.components.processor.results.jtmqr.writer.JTMQRFormat;
+
 /**
  * Interface definition of a sequence of tuples as a result of querying process.
  * The result set represents a 2-dimension container containing a number of
@@ -280,6 +282,27 @@ public interface IResultSet<T extends IResult> extends Iterable<T> {
 	 *             transformation to other formats.
 	 */
 	public void toJTMQR(OutputStream os) throws UnsupportedOperationException;
+	
+	/**
+	 * Transform the query result to an JTMQR string.
+	 * 
+	 * @return the JTMQR string
+	 * @throws UnsupportedOperationException
+	 *             thrown if the current results implementation does not support
+	 *             transformation to other formats.
+	 */
+	public String toJTMQR(JTMQRFormat format) throws UnsupportedOperationException;
+
+	/**
+	 * Transform the query result to an JTMQR stream.
+	 * 
+	 * @param os
+	 *            the output stream the JTMQR should write to
+	 * @throws UnsupportedOperationException
+	 *             thrown if the current results implementation does not support
+	 *             transformation to other formats.
+	 */
+	public void toJTMQR(OutputStream os, JTMQRFormat format) throws UnsupportedOperationException;
 
 	/**
 	 * Transform the query result to a topic map instance containing all topics

@@ -6,9 +6,9 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import de.topicmapslab.tmql4j.components.processor.core.QueryMatches;
-import de.topicmapslab.tmql4j.components.processor.results.jtmqr.writer.common.ListSerializer;
 import de.topicmapslab.tmql4j.components.processor.results.jtmqr.writer.common.MapSerializer;
 import de.topicmapslab.tmql4j.components.processor.results.jtmqr.writer.common.QueryMatchesSerializer;
+import de.topicmapslab.tmql4j.components.processor.results.jtmqr.writer.v2.ListSerializer;
 import de.topicmapslab.tmql4j.components.processor.results.tmdm.SimpleResult;
 import de.topicmapslab.tmql4j.components.processor.results.tmdm.SimpleResultSet;
 

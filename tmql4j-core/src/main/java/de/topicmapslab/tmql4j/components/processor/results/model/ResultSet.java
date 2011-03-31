@@ -24,6 +24,7 @@ import java.util.Set;
 import org.tmapi.core.TopicMap;
 import org.tmapi.core.TopicMapSystem;
 
+import de.topicmapslab.tmql4j.components.processor.results.jtmqr.writer.JTMQRFormat;
 import de.topicmapslab.tmql4j.util.HashUtil;
 
 /**
@@ -458,11 +459,21 @@ public abstract class ResultSet<T extends IResult> implements IResultSet<T> {
 		throw new UnsupportedOperationException("Current result set cannot be transformed to JTMQR.");
 	}
 
+	@Override
+	public String toJTMQR(JTMQRFormat format) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("Current result set cannot be transformed to JTMQR.");
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void toJTMQR(OutputStream os) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("Current result set cannot be transformed to JTMQR.");
+	}
+	
+	@Override
+	public void toJTMQR(OutputStream os, JTMQRFormat format) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Current result set cannot be transformed to JTMQR.");
 	}
 

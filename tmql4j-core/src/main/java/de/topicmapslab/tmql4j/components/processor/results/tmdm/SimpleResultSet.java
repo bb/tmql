@@ -26,6 +26,7 @@ import org.tmapix.io.XTM2TopicMapWriter;
 import org.tmapix.io.XTMVersion;
 
 import de.topicmapslab.ctm.writer.core.CTMTopicMapWriter;
+import de.topicmapslab.tmql4j.components.processor.results.jtmqr.writer.JTMQRFormat;
 import de.topicmapslab.tmql4j.components.processor.results.jtmqr.writer.JTMQRWriter;
 import de.topicmapslab.tmql4j.components.processor.results.model.IResult;
 import de.topicmapslab.tmql4j.components.processor.results.model.ResultSet;
@@ -79,20 +80,40 @@ public class SimpleResultSet extends ResultSet<SimpleResult> {
 	 * {@inheritDoc}
 	 */
 	public String toJTMQR() throws UnsupportedOperationException {
+		return toJTMQR(JTMQRFormat.JTMQR_1);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toJTMQR(JTMQRFormat format) throws UnsupportedOperationException {
+
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		toJTMQR(os);
+		toJTMQR(os, format);
+		
 		try {
 			return os.toString(UTF_8);
 		} catch (UnsupportedEncodingException e) {
 			throw new TMQLRuntimeException("Content cannot be transformed to UTF-8", e);
 		}
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	public void toJTMQR(OutputStream os) throws UnsupportedOperationException {
-		JTMQRWriter writer = new JTMQRWriter(os);
+		toJTMQR(os, JTMQRFormat.JTMQR_1);
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void toJTMQR(OutputStream os, JTMQRFormat format) throws UnsupportedOperationException {
+		
+		JTMQRWriter writer = new JTMQRWriter(os, format);
 		try {
 			writer.write(this);
 			writer.flush();
