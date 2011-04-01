@@ -11,11 +11,9 @@
 package de.topicmapslab.tmql4j.path.components.interpreter;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tmapi.core.Construct;
 
 import de.topicmapslab.tmql4j.components.interpreter.ExpressionInterpreterImpl;
 import de.topicmapslab.tmql4j.components.processor.core.IContext;
@@ -29,8 +27,8 @@ import de.topicmapslab.tmql4j.path.exception.NavigationException;
 import de.topicmapslab.tmql4j.path.grammar.lexical.AxisTypes;
 import de.topicmapslab.tmql4j.path.grammar.lexical.MoveForward;
 import de.topicmapslab.tmql4j.path.grammar.lexical.ShortcutAxisInstances;
+import de.topicmapslab.tmql4j.path.grammar.productions.Anchor;
 import de.topicmapslab.tmql4j.path.grammar.productions.Step;
-import de.topicmapslab.tmql4j.util.TmdmSubjectIdentifier;
 
 /**
  * 
@@ -52,7 +50,7 @@ public class StepInterpreter extends ExpressionInterpreterImpl<Step> {
 	/**
 	 * the Logger
 	 */
-	private Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
 	/**
 	 * base constructor to create a new instance
@@ -67,6 +65,7 @@ public class StepInterpreter extends ExpressionInterpreterImpl<Step> {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public QueryMatches interpret(ITMQLRuntime runtime, IContext context, Object... optionalArguments) throws TMQLRuntimeException {
 		try {
@@ -136,25 +135,35 @@ public class StepInterpreter extends ExpressionInterpreterImpl<Step> {
 				/*
 				 * set optional if exists
 				 */
-				if (getTokens().size() == 3) {
-					final String optional_ = getTokens().get(2);
-					if (optional_.startsWith("$")) {
-						if (context.getContextBindings() != null) {
-							List<Object> optionals = context.getContextBindings().getPossibleValuesForVariable(optional_);
-							if (!optionals.isEmpty()) {
-								optional = (Construct) optionals.get(0);
-							}
-						} else if (context.getCurrentTuple() != null || context.getCurrentTuple().containsKey(optional_)) {
-							optional = (Construct) context.getCurrentTuple().get(optional_);
-						}
-					} else if (TmdmSubjectIdentifier.isTmdmName(optional_) || TmdmSubjectIdentifier.isTmdmOccurrence(optional_)) {
-						optional = optional_;
-					} else {
-						optional = runtime.getConstructResolver().getConstructByIdentifier(context, optional_);
+				if (!getExpression().getExpressions().isEmpty()) {
+					QueryMatches optionals = extractArguments(runtime, Anchor.class, 0, context, optionalArguments);
+					if (optionals.isEmpty()) {
+						logger.warn("Cannot find optional type argument " + getTokens().get(2));
+						return QueryMatches.emptyMatches();
 					}
-					/*
-					 * optional should not be null if optional argument is used
-					 */
+					optional = optionals.getFirstValue();
+					// final String optional_ = getTokens().get(2);
+					// if (optional_.startsWith("$")) {
+					// if (context.getContextBindings() != null) {
+					// List<Object> optionals =
+					// context.getContextBindings().getPossibleValuesForVariable(optional_);
+					// if (!optionals.isEmpty()) {
+					// optional = (Construct) optionals.get(0);
+					// }
+					// } else if (context.getCurrentTuple() != null ||
+					// context.getCurrentTuple().containsKey(optional_)) {
+					// optional = (Construct)
+					// context.getCurrentTuple().get(optional_);
+					// }
+					// } else else {
+					// optional =
+					// runtime.getConstructResolver().getConstructByIdentifier(context,
+					// optional_);
+					// }
+					// /*
+					// * optional should not be null if optional argument is
+					// used
+					// */
 					if (optional == null) {
 						logger.warn("Cannot find optional type argument " + getTokens().get(0));
 						return QueryMatches.emptyMatches();
@@ -193,10 +202,10 @@ public class StepInterpreter extends ExpressionInterpreterImpl<Step> {
 			return QueryMatches.asQueryMatchNS(runtime, navigationResults.toArray());
 		} catch (TMQLRuntimeException ex) {
 			throw ex;
-		} catch(NavigationException e){
+		} catch (NavigationException e) {
 			logger.warn("The following navigation error occured!", e);
 			return new QueryMatches(runtime);
-		}catch (Exception ex) {			
+		} catch (Exception ex) {
 			throw new TMQLRuntimeException("An error occured during runtime!", ex);
 		}
 	}
