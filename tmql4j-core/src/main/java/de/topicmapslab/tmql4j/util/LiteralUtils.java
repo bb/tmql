@@ -42,6 +42,14 @@ import de.topicmapslab.tmql4j.query.IQuery;
 public class LiteralUtils {
 
 	/**
+	 * 
+	 */
+	private static final String QUOTE = "\"";
+	/**
+	 * 
+	 */
+	private static final String TRIPPLEQUOTE = "\"\"\"";
+	/**
 	 * regular expression of date
 	 */
 	private final static Pattern datePattern = Pattern.compile("[-]?[0-9][0-9][0-9][0-9][0-9]*[-](0[1-9]|1[0-2])[-](0[1-9]|[1-2][0-9]|3[0-1])");
@@ -178,7 +186,7 @@ public class LiteralUtils {
 	 *         <code>false</code> otherwise.
 	 */
 	public static final boolean isQuotedString(final String literal) {
-		return literal.startsWith("\"") && literal.endsWith("\"");
+		return literal.startsWith(QUOTE) && literal.endsWith(QUOTE);
 	}
 
 	/**
@@ -191,7 +199,7 @@ public class LiteralUtils {
 	 *         literal, <code>false</code> otherwise.
 	 */
 	public static final boolean isTripleQuotedString(final String literal) {
-		return literal.startsWith("\"\"\"") && literal.endsWith("\"\"\"");
+		return literal.startsWith(TRIPPLEQUOTE) && literal.endsWith(TRIPPLEQUOTE);
 	}
 
 	/**
@@ -369,9 +377,26 @@ public class LiteralUtils {
 	 * @param literal
 	 *            the quoted string literal
 	 * @return the string literal without quotes
+	 * @deprecated use {@link #asNonQuotedString(String)}
 	 */
+	@Deprecated
 	public static final String asQuotedString(final String literal) {
-		return literal.substring(1, literal.length() - 1);
+		return asNonQuotedString(literal);
+	}
+
+	/**
+	 * Method formats the given literal as string literal.
+	 * 
+	 * @param literal
+	 *            the quoted string literal
+	 * @return the string literal without quotes
+	 * @since 3.1.0
+	 */
+	public static final String asNonQuotedString(final String literal) {
+		if (isQuotedString(literal)) {
+			return literal.substring(1, literal.length() - 1);
+		}
+		return literal;
 	}
 
 	/**
@@ -380,9 +405,26 @@ public class LiteralUtils {
 	 * @param literal
 	 *            the triple quoted string literal
 	 * @return the string literal without quotes
+	 * @deprecated use {@link #asNonTripleQuotedString(String)}
 	 */
+	@Deprecated
 	public static final String asTripleQuotedString(final String literal) {
-		return literal.substring(3, literal.length() - 3);
+		return asNonTripleQuotedString(literal);
+	}
+
+	/**
+	 * Method formats the given literal as string literal.
+	 * 
+	 * @param literal
+	 *            the triple quoted string literal
+	 * @return the string literal without quotes
+	 * @since 3.1.0
+	 */
+	public static final String asNonTripleQuotedString(final String literal) {
+		if (isTripleQuotedString(literal)) {
+			return literal.substring(3, literal.length() - 3);
+		}
+		return literal;
 	}
 
 	/**
@@ -394,12 +436,33 @@ public class LiteralUtils {
 	 */
 	public static final String asString(final String literal) {
 		if (isTripleQuotedString(literal)) {
-			return unescape(asTripleQuotedString(literal));
+			return unescape(asNonTripleQuotedString(literal));
 		} else if (isQuotedString(literal)) {
-			return unescape(asQuotedString(literal));
+			return unescape(asNonQuotedString(literal));
 		} else {
 			return unescape(literal);
 		}
+	}
+
+	/**
+	 * Escape the given string and add quotes at the begining and the end of the
+	 * string
+	 * 
+	 * @param literal
+	 *            the literal
+	 * @return the escaped string
+	 * @since 3.1.0
+	 */
+	public static final String asEscapedString(String literal) {
+		if (literal.contains(QUOTE)) {
+			if (literal.contains(TRIPPLEQUOTE)) {
+				return TRIPPLEQUOTE + literal.replaceAll("\"", "\\\\\"") + TRIPPLEQUOTE;
+			}
+			return TRIPPLEQUOTE + literal + TRIPPLEQUOTE;
+		} else if (literal.contains(TRIPPLEQUOTE)) {
+			return TRIPPLEQUOTE + literal.replaceAll("\"", "\\\\\"") + TRIPPLEQUOTE;
+		}
+		return QUOTE + literal + QUOTE;
 	}
 
 	/**

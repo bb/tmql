@@ -29,6 +29,7 @@ import de.topicmapslab.tmql4j.path.grammar.lexical.Element;
 import de.topicmapslab.tmql4j.path.grammar.lexical.Literal;
 import de.topicmapslab.tmql4j.path.grammar.productions.Anchor;
 import de.topicmapslab.tmql4j.util.LiteralUtils;
+import de.topicmapslab.tmql4j.util.TmdmSubjectIdentifier;
 
 /**
  * 
@@ -55,7 +56,7 @@ public class AnchorInterpreter extends ExpressionInterpreterImpl<Anchor> {
 	/**
 	 * the Logger
 	 */
-	private Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
 	/**
 	 * base constructor to create a new instance
@@ -70,6 +71,7 @@ public class AnchorInterpreter extends ExpressionInterpreterImpl<Anchor> {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public QueryMatches interpret(ITMQLRuntime runtime, IContext context, Object... optionalArguments) throws TMQLRuntimeException {
 		if (Anchor.TYPE_PREPARED == getGrammarTypeOfExpression()) {
@@ -86,6 +88,9 @@ public class AnchorInterpreter extends ExpressionInterpreterImpl<Anchor> {
 		 * anchor is an item reference (constant)
 		 */
 		if (anchor.equals(Element.class)) {
+			if (TmdmSubjectIdentifier.isTmdmName(anchor_) || TmdmSubjectIdentifier.isTmdmOccurrence(anchor_)) {
+				return QueryMatches.asQueryMatchNS(runtime, anchor_);
+			}
 			try {
 				/*
 				 * handle special topic undef
@@ -132,7 +137,7 @@ public class AnchorInterpreter extends ExpressionInterpreterImpl<Anchor> {
 					return QueryMatches.asQueryMatchNS(runtime, context.getCurrentIndexInSequence());
 				}
 				return QueryMatches.emptyMatches();
-			} 
+			}
 			/*
 			 * check context binding for anchor
 			 */
@@ -154,7 +159,7 @@ public class AnchorInterpreter extends ExpressionInterpreterImpl<Anchor> {
 						return QueryMatches.asQueryMatchNS(runtime, possibleValuesForVariable.toArray());
 					}
 				}
-			} 
+			}
 			/*
 			 * check current tuple for anchor
 			 */

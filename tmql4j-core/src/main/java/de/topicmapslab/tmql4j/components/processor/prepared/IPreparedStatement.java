@@ -230,11 +230,22 @@ public interface IPreparedStatement extends IQuery {
 	 * holder by the set value.
 	 * 
 	 * @return the string
-	 * 
+	 * @deprecated use {@link #getNonParameterizedQueryString()}
 	 * @throws TMQLRuntimeException
 	 *             thrown if at least one argument is missing
 	 */
+	@Deprecated
 	public String getNonParametrizedQueryString() throws TMQLRuntimeException;
+
+	/**
+	 * Method transforms the internal query to string and replace every place
+	 * holder by the set value.
+	 * 
+	 * @return the string
+	 * @throws TMQLRuntimeException
+	 *             thrown if at least one argument is missing
+	 */
+	public String getNonParameterizedQueryString() throws TMQLRuntimeException;
 
 	/**
 	 * Returns the parser tree

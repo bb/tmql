@@ -26,26 +26,13 @@ import de.topicmapslab.tmql4j.grammar.productions.IExpression;
 import de.topicmapslab.tmql4j.grammar.productions.PreparedExpression;
 import de.topicmapslab.tmql4j.query.IQuery;
 import de.topicmapslab.tmql4j.util.HashUtil;
-import de.topicmapslab.tmql4j.util.LiteralUtils;
 
 /**
  * @author Sven Krosse
  * 
  */
-public class PreparedStatement implements IPreparedStatement {
+public abstract class PreparedStatement implements IPreparedStatement {
 
-	/**
-	 * 
-	 */
-	private static final String ESCAPED_QUOTE = "\\\\\"";
-	/**
-	 * 
-	 */
-	private static final String TRIPLE_QUOTE = "\"\"\"";
-	/**
-	 * 
-	 */
-	private static final String QUOTE = "\"";
 	/**
 	 * exception message
 	 */
@@ -88,8 +75,7 @@ public class PreparedStatement implements IPreparedStatement {
 	 * @param tree
 	 *            the tree
 	 */
-	public PreparedStatement(ITMQLRuntime runtime, IQuery query,
-			IParserTree tree) {
+	public PreparedStatement(ITMQLRuntime runtime, IQuery query, IParserTree tree) {
 		this.runtime = runtime;
 		this.tree = tree;
 		this.query = query;
@@ -123,8 +109,7 @@ public class PreparedStatement implements IPreparedStatement {
 	 */
 	private void checkIndex(int index) throws TMQLRuntimeException {
 		if (index >= indexes.size()) {
-			throw new TMQLRuntimeException(MessageFormat.format(
-					THE_GIVEN_INDEX_IS_OUT_OF_RANGE, index));
+			throw new TMQLRuntimeException(MessageFormat.format(THE_GIVEN_INDEX_IS_OUT_OF_RANGE, index));
 		}
 	}
 
@@ -138,8 +123,7 @@ public class PreparedStatement implements IPreparedStatement {
 	 */
 	private void checkWildcard(String wildcard) throws TMQLRuntimeException {
 		if (!namedWildcards.containsKey(wildcard)) {
-			throw new TMQLRuntimeException(MessageFormat.format(
-					THE_GIVEN_WILDCARD_IS_NOT_PRESENT, wildcard));
+			throw new TMQLRuntimeException(MessageFormat.format(THE_GIVEN_WILDCARD_IS_NOT_PRESENT, wildcard));
 		}
 	}
 
@@ -179,6 +163,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void set(int index, Object object) {
 		checkIndex(index);
 		internalSet(index, object);
@@ -187,6 +172,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setLong(int index, long value) {
 		checkIndex(index);
 		internalSet(index, value);
@@ -195,6 +181,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setDouble(int index, double value) {
 		checkIndex(index);
 		internalSet(index, value);
@@ -203,6 +190,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setDate(int index, Calendar value) {
 		checkIndex(index);
 		internalSet(index, value);
@@ -211,6 +199,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setString(int index, String value) {
 		checkIndex(index);
 		internalSet(index, value);
@@ -219,6 +208,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setTopic(int index, Topic topic) {
 		checkIndex(index);
 		internalSet(index, topic);
@@ -227,6 +217,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setConstruct(int index, Construct construct) {
 		checkIndex(index);
 		internalSet(index, construct);
@@ -235,6 +226,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void set(Object object) {
 		checkWildcard(ANONYMOUS);
 		internalSet(ANONYMOUS, object);
@@ -243,6 +235,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void set(String wildcard, Object object) {
 		if (!wildcard.startsWith(ANONYMOUS)) {
 			wildcard = ANONYMOUS + wildcard;
@@ -254,6 +247,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setConstruct(String wildcard, Construct construct) {
 		if (!wildcard.startsWith(ANONYMOUS)) {
 			wildcard = ANONYMOUS + wildcard;
@@ -265,6 +259,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setDate(String wildcard, Calendar value) {
 		if (!wildcard.startsWith(ANONYMOUS)) {
 			wildcard = ANONYMOUS + wildcard;
@@ -276,6 +271,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setDouble(String wildcard, double value) {
 		if (!wildcard.startsWith(ANONYMOUS)) {
 			wildcard = ANONYMOUS + wildcard;
@@ -287,6 +283,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setLong(String wildcard, long value) {
 		if (!wildcard.startsWith(ANONYMOUS)) {
 			wildcard = ANONYMOUS + wildcard;
@@ -298,6 +295,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setString(String wildcard, String value) {
 		if (!wildcard.startsWith(ANONYMOUS)) {
 			wildcard = ANONYMOUS + wildcard;
@@ -309,6 +307,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setTopic(String wildcard, Topic topic) {
 		if (!wildcard.startsWith(ANONYMOUS)) {
 			wildcard = ANONYMOUS + wildcard;
@@ -320,6 +319,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Object get(IExpression expression) {
 		if (indexes.containsKey(expression)) {
 			return get(indexes.get(expression));
@@ -330,6 +330,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Object get(int index) {
 		return getValues().get(index);
 	}
@@ -361,19 +362,15 @@ public class PreparedStatement implements IPreparedStatement {
 		 * first check if all indexes are set
 		 */
 		for (Integer index : indexes.values()) {
-			if (!getValues().containsKey(index)
-					|| getValues().get(index) == null) {
-				throw new TMQLRuntimeException(MessageFormat.format(
-						MISSING_VALUE_FOR_INDEX, index));
+			if (!getValues().containsKey(index) || getValues().get(index) == null) {
+				throw new TMQLRuntimeException(MessageFormat.format(MISSING_VALUE_FOR_INDEX, index));
 			}
 		}
 		/*
 		 * check if the tree does not contains forbidden expression
 		 */
 		if (!tree.isValid(runtime, query)) {
-			throw new TMQLRuntimeException(MessageFormat.format(
-					THE_QUERY_CONTAINS_FORBIDDEN_EXPRESSION, tree.root()
-							.getClass().getSimpleName()));
+			throw new TMQLRuntimeException(MessageFormat.format(THE_QUERY_CONTAINS_FORBIDDEN_EXPRESSION, tree.root().getClass().getSimpleName()));
 		}
 		/*
 		 * check if topic map is set
@@ -386,6 +383,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public TopicMap getTopicMap() {
 		return query.getTopicMap();
 	}
@@ -393,6 +391,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getQueryString() {
 		return query.getQueryString();
 	}
@@ -400,6 +399,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setResults(IResultSet<?> results) {
 		query.setResults(results);
 	}
@@ -407,6 +407,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IResultSet<?> getResults() throws TMQLRuntimeException {
 		return query.getResults();
 	}
@@ -414,14 +415,15 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void allowExpression(
-			Class<? extends IExpression> allowedExpressionType) {
+	@Override
+	public void allowExpression(Class<? extends IExpression> allowedExpressionType) {
 		query.allowExpression(allowedExpressionType);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void allowModificationQueries() {
 		query.allowModificationQueries();
 	}
@@ -429,14 +431,15 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void forbidExpression(
-			Class<? extends IExpression> forbiddenExpressionType) {
+	@Override
+	public void forbidExpression(Class<? extends IExpression> forbiddenExpressionType) {
 		query.forbidExpression(forbiddenExpressionType);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void forbidModificationQueries() {
 		query.forbidModificationQueries();
 	}
@@ -444,6 +447,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean isForbidden(Class<? extends IExpression> expressionType) {
 		return query.isForbidden(expressionType);
 	}
@@ -451,6 +455,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void afterQuery(ITMQLRuntime runtime) {
 		// NOTHING TO DO
 	}
@@ -458,6 +463,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void beforeQuery(ITMQLRuntime runtime) {
 		// NOTHING TO DO
 	}
@@ -465,6 +471,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setTopicMap(TopicMap topicMap) {
 		query.setTopicMap(topicMap);
 	}
@@ -479,6 +486,7 @@ public class PreparedStatement implements IPreparedStatement {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void run(Object... parameters) {
 		for (int index = 0; index < parameters.length; index++) {
 			set(index, parameters[index]);
@@ -487,31 +495,19 @@ public class PreparedStatement implements IPreparedStatement {
 		runtime.getTmqlProcessor().query(this);
 	}
 
-//	private void toString(StringBuilder builder, IExpression expression) {
-//		if (expression.getExpressions().isEmpty()) {
-//			if (expression instanceof PreparedExpression) {
-//				Object value = get(expression);
-//				if ( value instanceof String ){
-//					builder.append(LiteralUtils.asQuotedString(value.toString()));
-//				}else{
-//					builder.append(LiteralUtils.asString(value));
-//				}
-//			} else {
-//				for (String token : expression.getTokens()) {
-//					builder.append(token);
-//					builder.append(" ");
-//				}
-//			}
-//		}else{
-//			for ( IExpression exp)
-//		}
-//	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getNonParametrizedQueryString() throws TMQLRuntimeException {
+		return getNonParameterizedQueryString();
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getNonParametrizedQueryString() {
-
+	@Override
+	public String getNonParameterizedQueryString() {
 		/*
 		 * lazy load
 		 */
@@ -519,52 +515,22 @@ public class PreparedStatement implements IPreparedStatement {
 			/*
 			 * get query
 			 */
-			nonParametrizedQueryString = getQueryString();
-			/*
-			 * iterate over
-			 */
-			for (int index = 0; index < getValues().size(); index++) {
-				Object value = getValues().get(index);
-				if (value == null) {
-					throw new TMQLRuntimeException(MessageFormat.format(
-							MISSING_VALUE_FOR_INDEX, index));
-				}
-				String replacement;
-				if (value instanceof Construct) {
-					replacement = QUOTE + ((Construct) value).getId()
-							+ "\" << id";
-				} else if (value instanceof String) {
-					replacement = escape((String) value);
-				} else {
-					replacement = value.toString();
-				}
-				nonParametrizedQueryString = nonParametrizedQueryString
-						.replaceFirst("\\?", replacement);
-			}
+			nonParametrizedQueryString = doGetNonParameterizedQueryString();
 		}
 		return nonParametrizedQueryString;
 	}
 
 	/**
-	 * Internal method to escape a string value
+	 * Internal method to convert the query to the corresponding language
 	 * 
-	 * @param value
-	 *            the value
-	 * @return the string
+	 * @return the query without parameters in the corresponding languages
 	 */
-	private String escape(String value) {
-		if (value.contains(TRIPLE_QUOTE)) {
-			return TRIPLE_QUOTE + value.replace(QUOTE, ESCAPED_QUOTE)
-					+ TRIPLE_QUOTE;
-		} else if (value.contains(QUOTE)) {
-			return TRIPLE_QUOTE + value + TRIPLE_QUOTE;
-		}
-		return QUOTE + value + QUOTE;
-	}
+	protected abstract String doGetNonParameterizedQueryString();
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IParserTree getParserTree() {
 		return tree;
 	}

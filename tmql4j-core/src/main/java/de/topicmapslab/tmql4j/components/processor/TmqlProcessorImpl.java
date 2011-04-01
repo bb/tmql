@@ -9,6 +9,7 @@
 package de.topicmapslab.tmql4j.components.processor;
 
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 
 import de.topicmapslab.tmql4j.components.lexer.ILexer;
 import de.topicmapslab.tmql4j.components.parser.IParser;
@@ -17,12 +18,12 @@ import de.topicmapslab.tmql4j.components.processor.core.Context;
 import de.topicmapslab.tmql4j.components.processor.core.IContext;
 import de.topicmapslab.tmql4j.components.processor.core.QueryMatches;
 import de.topicmapslab.tmql4j.components.processor.prepared.IPreparedStatement;
-import de.topicmapslab.tmql4j.components.processor.prepared.PreparedStatement;
 import de.topicmapslab.tmql4j.components.processor.results.TmqlResultProcessor;
 import de.topicmapslab.tmql4j.components.processor.results.model.IResultProcessor;
 import de.topicmapslab.tmql4j.components.processor.results.model.IResultSet;
 import de.topicmapslab.tmql4j.components.processor.results.model.ResultSet;
 import de.topicmapslab.tmql4j.components.processor.runtime.ITMQLRuntime;
+import de.topicmapslab.tmql4j.exception.TMQLRuntimeException;
 import de.topicmapslab.tmql4j.query.IQuery;
 
 /**
@@ -31,6 +32,10 @@ import de.topicmapslab.tmql4j.query.IQuery;
  */
 public abstract class TmqlProcessorImpl implements ITmqlProcessor {
 
+	/**
+	 * exception message
+	 */
+	private static final String ERROR_CANNOT_CREATE_NET_INSTANCE_OF_PREPARED_STATEMENT = "Cannot create net instance of prepared statement";
 	private final ITMQLRuntime runtime;
 	private IResultProcessor tmqlResultProcessor;
 
@@ -43,10 +48,11 @@ public abstract class TmqlProcessorImpl implements ITmqlProcessor {
 	public TmqlProcessorImpl(ITMQLRuntime runtime) {
 		this.runtime = runtime;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IResultSet<?> query(IQuery query, OutputStream stream) {
 		IParserTree tree = parse(query);
 		if (tree != null) {
@@ -55,7 +61,7 @@ public abstract class TmqlProcessorImpl implements ITmqlProcessor {
 			QueryMatches results = tree.root().interpret(runtime, context);
 
 			IResultProcessor resultProcessor = getResultProcessor();
-			resultProcessor.proceed(context,results);
+			resultProcessor.proceed(context, results);
 
 			return resultProcessor.getResultSet();
 		}
@@ -65,6 +71,7 @@ public abstract class TmqlProcessorImpl implements ITmqlProcessor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IResultSet<?> query(IQuery query) {
 		IParserTree tree = parse(query);
 		if (tree != null) {
@@ -83,6 +90,7 @@ public abstract class TmqlProcessorImpl implements ITmqlProcessor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IResultSet<?> query(IPreparedStatement statement) {
 		/*
 		 * create context
@@ -108,6 +116,7 @@ public abstract class TmqlProcessorImpl implements ITmqlProcessor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IParserTree parse(IQuery query) {
 		ILexer lexer = getTmqlLexer(query);
 		lexer.execute();
@@ -122,13 +131,36 @@ public abstract class TmqlProcessorImpl implements ITmqlProcessor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IPreparedStatement prepared(IQuery query) {
 		IParserTree tree = parse(query);
 		if (tree != null) {
-			return new PreparedStatement(runtime, query, tree);
+			try {
+				return getPreparedStatementClass().getConstructor(ITMQLRuntime.class, IQuery.class, IParserTree.class).newInstance(runtime, query, tree);
+			} catch (IllegalArgumentException e) {
+				throw new TMQLRuntimeException(ERROR_CANNOT_CREATE_NET_INSTANCE_OF_PREPARED_STATEMENT, e);
+			} catch (SecurityException e) {
+				throw new TMQLRuntimeException(ERROR_CANNOT_CREATE_NET_INSTANCE_OF_PREPARED_STATEMENT, e);
+			} catch (InstantiationException e) {
+				throw new TMQLRuntimeException(ERROR_CANNOT_CREATE_NET_INSTANCE_OF_PREPARED_STATEMENT, e);
+			} catch (IllegalAccessException e) {
+				throw new TMQLRuntimeException(ERROR_CANNOT_CREATE_NET_INSTANCE_OF_PREPARED_STATEMENT, e);
+			} catch (InvocationTargetException e) {
+				throw new TMQLRuntimeException(ERROR_CANNOT_CREATE_NET_INSTANCE_OF_PREPARED_STATEMENT, e);
+			} catch (NoSuchMethodException e) {
+				throw new TMQLRuntimeException(ERROR_CANNOT_CREATE_NET_INSTANCE_OF_PREPARED_STATEMENT, e);
+			}
 		}
 		return null;
 	}
+
+	/**
+	 * Internal method to get the implementation class of the prepared statement
+	 * 
+	 * @return the class of prepared statement
+	 * @since 3.1.0
+	 */
+	protected abstract Class<? extends IPreparedStatement> getPreparedStatementClass();
 
 	/**
 	 * @return the runtime
@@ -142,13 +174,14 @@ public abstract class TmqlProcessorImpl implements ITmqlProcessor {
 	 * 
 	 * @return the new result processor
 	 */
-	protected IResultProcessor createResultProcessor(){
+	protected IResultProcessor createResultProcessor() {
 		return new TmqlResultProcessor(runtime);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public IResultProcessor getResultProcessor() {
 		if (tmqlResultProcessor == null) {
 			tmqlResultProcessor = createResultProcessor();

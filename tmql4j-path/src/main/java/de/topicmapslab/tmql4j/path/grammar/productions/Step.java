@@ -62,6 +62,9 @@ public class Step extends ExpressionImpl {
 	 */
 	public Step(IExpression parent, List<Class<? extends IToken>> tmqlTokens, List<String> tokens, ITMQLRuntime runtime) throws TMQLInvalidSyntaxException, TMQLGeneratorException {
 		super(parent, tmqlTokens, tokens, runtime);
+		if (getTmqlTokens().size() == 3) {
+			checkForExtensions(Anchor.class, getTmqlTokens().subList(2, 3), tokens.subList(2, 3), runtime);
+		}
 		setGrammarType(0);
 	}
 
@@ -74,15 +77,15 @@ public class Step extends ExpressionImpl {
 			return false;
 		} else if (!getTmqlTokens().get(0).equals(MoveBackward.class) && !getTmqlTokens().get(0).equals(MoveForward.class)) {
 			return false;
-		} 
-		try{
+		}
+		try {
 			/*
 			 * check if the axis is known
 			 */
 			NavigationRegistry.buildHandler().lookup(getTmqlTokens().get(1));
-		}catch(UnsupportedNavigationTypeException ex){
+		} catch (UnsupportedNavigationTypeException ex) {
 			return false;
-		}catch(NavigationException ex){
+		} catch (NavigationException ex) {
 			return false;
 		}
 		return true;

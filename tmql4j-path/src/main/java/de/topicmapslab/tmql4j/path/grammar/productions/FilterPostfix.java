@@ -129,23 +129,19 @@ public class FilterPostfix extends ExpressionImpl {
 		 */
 		if (tmqlTokens.get(0).equals(ShortcutAxisInstances.class)) {
 			setGrammarType(TYPE_SHORTCUT_TYPE_FILTER);
-			checkForExtensions(Anchor.class, tmqlTokens.subList(1,2), tokens.subList(1,2), runtime);
+			checkForExtensions(Anchor.class, tmqlTokens.subList(1, 2), tokens.subList(1, 2), runtime);
 		} else if (tmqlTokens.get(0).equals(Scope.class)) {
 			setGrammarType(TYPE_SHORTCUT_SCOPE_FILTER);
-			checkForExtensions(Anchor.class, tmqlTokens.subList(1,2), tokens.subList(1,2), runtime);
+			checkForExtensions(Anchor.class, tmqlTokens.subList(1, 2), tokens.subList(1, 2), runtime);
 		} else if (tmqlTokens.get(1).equals(Scope.class)) {
 			setGrammarType(TYPE_SCOPE_FILTER);
-			checkForExtensions(Anchor.class, tmqlTokens.subList(2,3), tokens.subList(2,3), runtime);
+			checkForExtensions(Anchor.class, tmqlTokens.subList(2, 3), tokens.subList(2, 3), runtime);
 		} else if (tmqlTokens.get(0).equals(BracketSquareOpen.class) && tmqlTokens.get(tmqlTokens.size() - 1).equals(BracketSquareClose.class)) {
 			/*
 			 * is [#integer]
 			 */
 			if (tmqlTokens.size() == 3) {
-				try {
-					Integer.parseInt(tokens.get(1));
-				} catch (Exception ex) {
-					throw new TMQLInvalidSyntaxException(getTmqlTokens(), getTokens(), getClass(), "invalid syntax [integer] required");
-				}
+				checkForExtensions(Anchor.class, tmqlTokens.subList(1, 2), tokens.subList(1, 2), runtime);
 				setGrammarType(TYPE_SHORTCUT_INDEX_FILTER);
 			}
 			/*
@@ -153,27 +149,21 @@ public class FilterPostfix extends ExpressionImpl {
 			 */
 			else if (tmqlTokens.get(1).equals(ShortcutAxisTypes.class)) {
 				setGrammarType(TYPE_TYPE_FILTER);
-				checkForExtensions(Anchor.class, tmqlTokens.subList(2,3), tokens.subList(2,3), runtime);
+				checkForExtensions(Anchor.class, tmqlTokens.subList(2, 3), tokens.subList(2, 3), runtime);
 			} else if (tmqlTokens.size() == 5) {
 				/*
 				 * is [#integer .. #integer]
 				 */
 				if (tmqlTokens.get(2).equals(DoubleDot.class)) {
-					try {
-						Integer lower = Integer.parseInt(tokens.get(1));
-						Integer upper = Integer.parseInt(tokens.get(3));
-						if (lower > upper) {
-							throw new TMQLInvalidSyntaxException(getTmqlTokens(), getTokens(), getClass(), "invalid syntax lower have to be smaller than upper bound");
-						}
-					} catch (Exception ex) {
-						throw new TMQLInvalidSyntaxException(getTmqlTokens(), getTokens(), getClass(), "invalid syntax [integer .. integer] required");
-					}
+					checkForExtensions(Anchor.class, tmqlTokens.subList(1, 2), tokens.subList(1, 2), runtime);
+					checkForExtensions(Anchor.class, tmqlTokens.subList(3, 4), tokens.subList(3, 4), runtime);
 					setGrammarType(TYPE_SHORTCUT_BOUNDS_FILTER);
 				}
 				/*
 				 * is [$# == #integer]
 				 */
 				else if (tokens.get(1).equalsIgnoreCase(CURRENT_POISTION) && tmqlTokens.get(2).equals(Equality.class)) {
+					checkForExtensions(Anchor.class, tmqlTokens.subList(3, 4), tokens.subList(3, 4), runtime);
 					setGrammarType(TYPE_INDEX_FILTER);
 				}
 			} else if (tmqlTokens.size() == 9) {
@@ -182,15 +172,8 @@ public class FilterPostfix extends ExpressionImpl {
 				 */
 				if (tmqlTokens.get(2).equals(LowerEquals.class) && tokens.get(3).equalsIgnoreCase(CURRENT_POISTION) && tmqlTokens.get(4).equals(And.class)
 						&& tokens.get(5).equalsIgnoreCase(CURRENT_POISTION) && tmqlTokens.get(6).equals(LowerThan.class)) {
-					try {
-						Integer lower = Integer.parseInt(tokens.get(1));
-						Integer upper = Integer.parseInt(tokens.get(7));
-						if (lower > upper) {
-							throw new TMQLInvalidSyntaxException(getTmqlTokens(), getTokens(), getClass(), "invalid syntax lower have to be smaller than upper bound");
-						}
-					} catch (Exception ex) {
-						throw new TMQLInvalidSyntaxException(getTmqlTokens(), getTokens(), getClass(), "invalid syntax [integer <= $# & $# < integer] required");
-					}
+					checkForExtensions(Anchor.class, tmqlTokens.subList(1, 2), tokens.subList(1, 2), runtime);
+					checkForExtensions(Anchor.class, tmqlTokens.subList(7, 8), tokens.subList(7, 8), runtime);
 					setGrammarType(TYPE_BOUNDS_FILTER);
 				}
 			}
