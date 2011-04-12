@@ -21,8 +21,6 @@ public class JTMQRWriter {
 	private static final String UTF_8 = "UTF-8";
 	private OutputStream out;
 	private ObjectMapper mapper;
-	
-	private final JTMQRFormat format;
 
 	public JTMQRWriter(OutputStream outputStream) {
 		this(outputStream, JTMQRFormat.JTMQR_1);
@@ -30,19 +28,17 @@ public class JTMQRWriter {
 	
 	public JTMQRWriter(OutputStream outputStream, JTMQRFormat format) {
 		out = outputStream;
-		this.format = format;
-		
-		if(this.format.equals(JTMQRFormat.JTMQR_1)){
-			this.mapper = new JTMQRMapper();
-		}else if(this.format.equals(JTMQRFormat.JTMQR_2)){
-			this.mapper = new JTMQR2Mapper();
-		}else{
-			throw new RuntimeException("Unexpected JTMQR Format");
-		}
-		
-	}
+        mapper = getMapper(format);
+    }
 
-	/**
+    private static ObjectMapper getMapper(JTMQRFormat format) {
+        if(format.equals(JTMQRFormat.JTMQR_1)) return new JTMQRMapper();
+        if(format.equals(JTMQRFormat.JTMQR_2)) return new JTMQR2Mapper();
+
+        throw new RuntimeException("Unexpected JTMQR Format");
+    }
+
+    /**
 	 * Writes the given result to JTMQR
 	 * 
 	 * @param result
@@ -80,14 +76,22 @@ public class JTMQRWriter {
 	/**
 	 * Static method to transform the given result to an JSON string.
 	 * 
-	 * @param result
-	 *            the result to transform
-	 * @return the JSON string
+	 * @param result the result to transform
+	 * @param format the JTMQR version to be used for serialization.
+     * @return the JSON string
 	 * @throws IOException
 	 *             thrown if an I/O error occur
 	 */
+	public static String getJson(IResult result, JTMQRFormat format) throws IOException {
+		return getJsonAsStream(result, format).toString(UTF_8);
+	}
+
+    /**
+     * @deprecated
+     * @see JTMQRWriter#getJson(de.topicmapslab.tmql4j.components.processor.results.model.IResult, JTMQRFormat)
+     */
 	public static String getJson(IResult result) throws IOException {
-		return getJsonAsStream(result).toString(UTF_8);
+		return getJson(result, JTMQRFormat.JTMQR_1);
 	}
 
 	/**
@@ -96,12 +100,21 @@ public class JTMQRWriter {
 	 * 
 	 * @param result
 	 *            the result to transform
+     * @param format the JTMQR version to be used for serialization.
 	 * @return the JSON string as byte array
 	 * @throws IOException
 	 *             thrown if an I/O error occur
 	 */
+	public static byte[] getJsonAsByteArray(IResult result, JTMQRFormat format) throws IOException {
+		return getJsonAsStream(result, format).toByteArray();
+	}
+
+    /**
+     * @deprecated
+     * @see JTMQRWriter#getJsonAsByteArray(de.topicmapslab.tmql4j.components.processor.results.model.IResult, JTMQRFormat)
+     */
 	public static byte[] getJsonAsByteArray(IResult result) throws IOException {
-		return getJsonAsStream(result).toByteArray();
+		return getJsonAsByteArray(result, JTMQRFormat.JTMQR_1);
 	}
 
 	/**
@@ -110,16 +123,25 @@ public class JTMQRWriter {
 	 * 
 	 * @param result
 	 *            the result to transform
+     * @param format the JTMQR version to be used for serialization.
 	 * @return the JSON string as {@link ByteArrayOutputStream}
 	 * @throws IOException
 	 *             thrown if an I/O error occur
 	 */
-	public static ByteArrayOutputStream getJsonAsStream(IResult result) throws IOException {
+	public static ByteArrayOutputStream getJsonAsStream(IResult result, JTMQRFormat format) throws IOException {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		JTMQRWriter writer = new JTMQRWriter(buffer);
+		JTMQRWriter writer = new JTMQRWriter(buffer, format);
 		writer.write(result);
 		writer.flush();
 		return buffer;
+	}
+
+    /**
+     * @deprecated
+     * @see JTMQRWriter#getJson(de.topicmapslab.tmql4j.components.processor.results.model.IResult, JTMQRFormat)
+     */
+	public static ByteArrayOutputStream getJsonAsStream(IResult result) throws IOException {
+		return getJsonAsStream(result, JTMQRFormat.JTMQR_1);
 	}
 
 	/**
@@ -127,12 +149,21 @@ public class JTMQRWriter {
 	 * 
 	 * @param resultSet
 	 *            the result set to transform
+     * @param format the JTMQR version to be used for serialization.
 	 * @return the JSON string
 	 * @throws IOException
 	 *             thrown if an I/O error occur
 	 */
+	public static String getJson(IResultSet<?> resultSet, JTMQRFormat format) throws IOException {
+		return getJsonAsStream(resultSet, format).toString();
+	}
+
+    /**
+     * @deprecated
+     * @see JTMQRWriter#getJson(de.topicmapslab.tmql4j.components.processor.results.model.IResultSet, JTMQRFormat) 
+     */
 	public static String getJson(IResultSet<?> resultSet) throws IOException {
-		return getJsonAsStream(resultSet).toString();
+		return getJson(resultSet, JTMQRFormat.JTMQR_1);
 	}
 
 	/**
@@ -141,12 +172,21 @@ public class JTMQRWriter {
 	 * 
 	 * @param resultSet
 	 *            the result set to transform
+     * @param format the JTMQR version to be used for serialization.
 	 * @return the JSON string as byte array
 	 * @throws IOException
 	 *             thrown if an I/O error occur
 	 */
+	public static byte[] getJsonAsByteArray(IResultSet<?> resultSet, JTMQRFormat format) throws IOException {
+		return getJsonAsStream(resultSet, format).toByteArray();
+	}
+
+    /**
+     * @deprecated
+     * @see JTMQRWriter#getJsonAsByteArray(de.topicmapslab.tmql4j.components.processor.results.model.IResultSet, JTMQRFormat) 
+     */
 	public static byte[] getJsonAsByteArray(IResultSet<?> resultSet) throws IOException {
-		return getJsonAsStream(resultSet).toByteArray();
+		return getJsonAsByteArray(resultSet, JTMQRFormat.JTMQR_1);
 	}
 
 	/**
@@ -155,16 +195,25 @@ public class JTMQRWriter {
 	 * 
 	 * @param resultSet
 	 *            the result set to transform
+     * @param format the JTMQR version to be used for serialization.
 	 * @return the JSON string as {@link ByteArrayOutputStream}
 	 * @throws IOException
 	 *             thrown if an I/O error occur
 	 */
-	public static ByteArrayOutputStream getJsonAsStream(IResultSet<?> resultSet) throws IOException {
+	public static ByteArrayOutputStream getJsonAsStream(IResultSet<?> resultSet, JTMQRFormat format) throws IOException {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		JTMQRWriter writer = new JTMQRWriter(buffer);
+		JTMQRWriter writer = new JTMQRWriter(buffer, format);
 		writer.write(resultSet);
 		writer.flush();
 		return buffer;
+	}
+
+    /**
+     * @deprecated
+     * @see JTMQRWriter#getJsonAsStream(de.topicmapslab.tmql4j.components.processor.results.model.IResultSet, JTMQRFormat) 
+     */
+	public static ByteArrayOutputStream getJsonAsStream(IResultSet<?> resultSet) throws IOException {
+		return getJsonAsStream(resultSet, JTMQRFormat.JTMQR_1);
 	}
 
 	/**
@@ -172,19 +221,28 @@ public class JTMQRWriter {
 	 * 
 	 * @param matches
 	 *            the matches
+     * @param format the JTMQR version to be used for serialization.
 	 * @return the JTMQR string
 	 * @throws TMQLRuntimeException
 	 *             thrown if any IO error occurs
 	 */
-	public static String getJson(QueryMatches matches) throws TMQLRuntimeException {
+	public static String getJson(QueryMatches matches, JTMQRFormat format) throws TMQLRuntimeException {
 		try {
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			getJsonAsStream(stream, matches);
+			getJsonAsStream(stream, matches, format);
 			stream.flush();
 			return stream.toString(UTF_8);
 		} catch (IOException e) {
 			throw new TMQLRuntimeException("Cannot convert to JTMQR", e);
 		}
+	}
+
+    /**
+     * @deprecated
+     * @see JTMQRWriter#getJson(de.topicmapslab.tmql4j.components.processor.core.QueryMatches, JTMQRFormat) 
+     */
+	public static String getJson(QueryMatches matches) throws TMQLRuntimeException {
+		return getJson(matches, JTMQRFormat.JTMQR_1);
 	}
 
 	/**
@@ -194,16 +252,25 @@ public class JTMQRWriter {
 	 *            the stream
 	 * @param matches
 	 *            the matches
+     * @param format the JTMQR version to be used for serialization.
 	 * @throws TMQLRuntimeException
 	 *             thrown if any IO error occurs
 	 */
-	public static void getJsonAsStream(OutputStream outputStream, QueryMatches matches) throws TMQLRuntimeException {
+	public static void getJsonAsStream(OutputStream outputStream, QueryMatches matches, JTMQRFormat format) throws TMQLRuntimeException {
 		try {
-			ObjectMapper mapper = new JTMQRMapper();
+			ObjectMapper mapper = getMapper(format);
 			mapper.writeValue(outputStream, matches);
 		} catch (IOException e) {
 			throw new TMQLRuntimeException("Cannot convert to JTMQR", e);
 		}
+	}
+
+    /**
+     * @deprecated
+     * @see JTMQRWriter#getJsonAsStream(java.io.OutputStream, de.topicmapslab.tmql4j.components.processor.core.QueryMatches, JTMQRFormat)
+     */
+	public static void getJsonAsStream(OutputStream outputStream, QueryMatches matches) throws TMQLRuntimeException {
+		getJsonAsStream(outputStream, matches, JTMQRFormat.JTMQR_1);
 	}
 
 }
